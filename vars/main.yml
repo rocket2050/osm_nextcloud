@@ -1,0 +1,7 @@
+---
+# vars file for nextcloud
+ServerAdmin_Email: root@192.168.2.18
+ServerName: 192.168.2.18:80
+timezone: Asia/Kolkata
+db_user: root
+db_password: password
