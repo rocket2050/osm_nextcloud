@@ -1,0 +1,100 @@
+---
+- name: Update the OS Packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: Get MySQL Repo
+  get_url:
+    url: http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+    dest: /root/
+
+- name: Install the MySQL repo
+  yum:
+    name: /root/mysql-community-release-el7-5.noarch.rpm
+    state: present
+
+- name: Install Epel Repo
+  yum:
+    name: epel-release
+    state: present
+    
+- name: Install the all packages that is required
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - httpd
+    - php
+    - php-mbstring
+    - php-pear
+    - php-smbclient 
+    - nextcloud
+    - mysql-community-server
+    - mysql-community-client
+    - MySQL-python
+    - wget
+  notify:
+    - restart_mysqld
+
+- name: Remove the Welcome Page of Apache
+  file:
+    path: /etc/httpd/conf.d/welcome.conf
+    state: absent
+  remote_src: true
+
+- name: Configure apache
+  template:
+    src: httpd.conf.j2
+    dest: /etc/httpd/conf/httpd.conf
+  notify:
+    - restart_httpd
+
+- name: Set Test Page for apache
+  file:
+    src: index.html
+    dest: /var/www/html/
+  notify:
+    - restart_httpd
+
+- name: Configure PHP
+  template:
+    src: php.ini.j2
+    dest: /etc/php.ini
+  notify:
+    - restart_httpd
+
+- name: Set Test Page for PHP
+  file:
+    src: index.php
+    dest: /var/www/html/
+  notify:
+    - restart_httpd
+
+- name: Enable and Start MySQL
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: true
+  with_items:
+    - httpd
+    - mysqld
+
+- name: Setup of MySQL
+  include: mysql_secure_installation.yml
+
+- name: Configure NextCloud
+  template:
+    src: nextcloud.conf.j2
+    dest: /etc/httpd/conf.d/nextcloud.conf
+  notify:
+    - restart_httpd      
+
+- name: Enable and Start MySQL
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: true
+  with_items:
+    - httpd
+    - mysqld

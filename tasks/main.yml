@@ -1,0 +1,6 @@
+---
+# tasks file for nextcloud
+- name: Install NextCloud on RedHat or Centos Server
+  include: redhat.yml
+  when:
+    ansible_os_family == 'RedHat'
