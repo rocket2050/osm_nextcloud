@@ -1,0 +1,13 @@
+---
+# handlers file for nextcloud
+- name: restart_mysqld
+  service:
+    name: mysqld 
+    state: restarted
+    enabled: true
+
+- name: restart_httpd
+  service: 
+    name: httpd 
+    state: restarted
+    enabled: true
